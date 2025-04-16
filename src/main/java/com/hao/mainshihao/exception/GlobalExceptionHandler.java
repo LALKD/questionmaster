@@ -4,6 +4,7 @@ import com.hao.mainshihao.common.BaseResponse;
 import com.hao.mainshihao.common.ErrorCode;
 import com.hao.mainshihao.common.ResultUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -20,6 +21,12 @@ public class GlobalExceptionHandler {
     public BaseResponse<?> businessExceptionHandler(BusinessException e) {
         log.error("BusinessException", e);
         return ResultUtils.error(e.getCode(), e.getMessage());
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public BaseResponse<?> duplicateKeyExceptionHandler(DuplicateKeyException e) {
+        log.error("DuplicateKeyException", e);
+        return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "不能重复加入");
     }
 
     @ExceptionHandler(RuntimeException.class)
