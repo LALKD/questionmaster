@@ -1,4 +1,4 @@
-package com.hao.mainshihao.manager;
+package com.hao.mianshihao.manager;
 
 import javax.annotation.Resource;
 import org.junit.jupiter.api.Test;

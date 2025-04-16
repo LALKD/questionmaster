@@ -1,6 +1,6 @@
-package com.hao.mainshihao;
+package com.hao.mianshihao;
 
-import com.hao.mainshihao.model.enums.UserRoleEnum;
+import com.hao.mianshihao.model.enums.UserRoleEnum;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

@@ -1,6 +1,6 @@
-package com.hao.mainshihao.mapper;
+package com.hao.mianshihao.mapper;
 
-import com.hao.mainshihao.model.entity.Post;
+import com.hao.mianshihao.model.entity.Post;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Resource;
