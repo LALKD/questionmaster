@@ -4,7 +4,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hao.mainshihao.mapper.PostMapper">
+<mapper namespace="com.hao.mianshihao.mapper.PostMapper">
 
     <resultMap id="BaseResultMap" type="com.hao.mianshihao.model.entity.Post">
         <id property="id" column="id" jdbcType="BIGINT"/>
