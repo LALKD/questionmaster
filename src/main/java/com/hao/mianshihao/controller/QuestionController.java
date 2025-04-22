@@ -9,10 +9,7 @@ import com.hao.mianshihao.common.ResultUtils;
 import com.hao.mianshihao.constant.UserConstant;
 import com.hao.mianshihao.exception.BusinessException;
 import com.hao.mianshihao.exception.ThrowUtils;
-import com.hao.mianshihao.model.dto.question.QuestionAddRequest;
-import com.hao.mianshihao.model.dto.question.QuestionEditRequest;
-import com.hao.mianshihao.model.dto.question.QuestionQueryRequest;
-import com.hao.mianshihao.model.dto.question.QuestionUpdateRequest;
+import com.hao.mianshihao.model.dto.question.*;
 import com.hao.mianshihao.model.entity.Question;
 import com.hao.mianshihao.model.entity.User;
 import com.hao.mianshihao.model.vo.QuestionVO;
@@ -239,6 +236,15 @@ public class QuestionController {
         ThrowUtils.throwIf(size > 200, ErrorCode.PARAMS_ERROR);
         Page<Question> questionPage = questionService.searchFromEs(questionQueryRequest);
         return ResultUtils.success(questionService.getQuestionVOPage(questionPage, request));
+    }
+
+    @PostMapping("/delete/batch")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> batchDeleteQuestions(@RequestBody QuestionBatchDeleteRequest questionBatchDeleteRequest,
+                                                                 HttpServletRequest request) {
+        ThrowUtils.throwIf(questionBatchDeleteRequest == null, ErrorCode.PARAMS_ERROR);
+        questionService.batchDeleteQuestions(questionBatchDeleteRequest.getQuestionIdList());
+        return ResultUtils.success(true);
     }
 
     // endregion
