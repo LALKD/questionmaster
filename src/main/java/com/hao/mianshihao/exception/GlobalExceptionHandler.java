@@ -1,5 +1,6 @@
 package com.hao.mianshihao.exception;
 
+import cn.dev33.satoken.exception.NotPermissionException;
 import com.hao.mianshihao.common.BaseResponse;
 import com.hao.mianshihao.common.ErrorCode;
 import com.hao.mianshihao.common.ResultUtils;
@@ -33,5 +34,12 @@ public class GlobalExceptionHandler {
     public BaseResponse<?> runtimeExceptionHandler(RuntimeException e) {
         log.error("RuntimeException", e);
         return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "系统错误");
+    }
+
+    // 全局异常拦截
+    @ExceptionHandler
+    public BaseResponse<?> handlerException(NotPermissionException e) {
+        log.error("NotPermissionException", e);
+        return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "无此权限");
     }
 }
