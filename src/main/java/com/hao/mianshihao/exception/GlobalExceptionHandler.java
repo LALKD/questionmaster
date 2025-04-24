@@ -1,6 +1,8 @@
 package com.hao.mianshihao.exception;
 
+import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.exception.NotPermissionException;
+import cn.dev33.satoken.exception.NotRoleException;
 import com.hao.mianshihao.common.BaseResponse;
 import com.hao.mianshihao.common.ErrorCode;
 import com.hao.mianshihao.common.ResultUtils;
@@ -38,8 +40,14 @@ public class GlobalExceptionHandler {
 
     // 全局异常拦截
     @ExceptionHandler
-    public BaseResponse<?> handlerException(NotPermissionException e) {
-        log.error("NotPermissionException", e);
+    public BaseResponse<?> handlerException(NotRoleException e) {
+        log.error("NotRoleException", e);
         return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "无此权限");
+    }
+
+    @ExceptionHandler
+    public BaseResponse<?> handlerException(NotLoginException e) {
+        log.error("NotLoginException", e);
+        return ResultUtils.error(ErrorCode.SYSTEM_ERROR, "未登录");
     }
 }
