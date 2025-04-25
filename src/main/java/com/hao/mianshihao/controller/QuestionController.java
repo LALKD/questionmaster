@@ -16,8 +16,12 @@ import com.hao.mianshihao.model.entity.User;
 import com.hao.mianshihao.model.vo.QuestionVO;
 import com.hao.mianshihao.service.QuestionService;
 import com.hao.mianshihao.service.UserService;
+import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -26,8 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * 题目接口
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://www.code-nav.cn">编程导航学习圈</a>
+ 
  */
 @RestController
 @RequestMapping("/question")
@@ -39,6 +42,9 @@ public class QuestionController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     // region 增删改查
 
@@ -129,13 +135,32 @@ public class QuestionController {
      * @return
      */
     @GetMapping("/get/vo")
+//    @Cacheable(cacheNames = "questionCache", key = "#id")
     public BaseResponse<QuestionVO> getQuestionVOById(long id, HttpServletRequest request) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+        String key = "question_detail_" + id;
+        if (JdHotKeyStore.isHotKey(key)) {
+            QuestionVO question = (QuestionVO) JdHotKeyStore.get(key);
+            if (question != null) {
+                return ResultUtils.success(question);
+            }
+        }
+        //先查reids，没查到再查数据库
+        RBucket<QuestionVO> bucket = redissonClient.getBucket("questionCache:question:" + id);
+        QuestionVO questionVO = bucket.get();
+        if (questionVO != null) {
+            JdHotKeyStore.smartSet(key, questionVO);
+            return ResultUtils.success(questionVO);
+        }
+
         // 查询数据库
         Question question = questionService.getById(id);
         ThrowUtils.throwIf(question == null, ErrorCode.NOT_FOUND_ERROR);
+        questionVO = questionService.getQuestionVO(question, request);
+        bucket.set(questionVO);
+        JdHotKeyStore.smartSet(key, questionVO);
         // 获取封装类
-        return ResultUtils.success(questionService.getQuestionVO(question, request));
+        return ResultUtils.success(questionVO);
     }
 
     /**

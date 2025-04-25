@@ -24,6 +24,8 @@ import com.hao.mianshihao.service.QuestionService;
 import com.hao.mianshihao.service.UserService;
 import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,8 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * 题库接口
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://www.code-nav.cn">编程导航学习圈</a>
+ 
  */
 @RestController
 @RequestMapping("/questionBank")
@@ -49,6 +50,9 @@ public class QuestionBankController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private RedissonClient redissonClient;
 
     // region 增删改查
 
@@ -157,12 +161,18 @@ public class QuestionBankController {
         }
 
         //先查redis，查不到再查数据库
+        RBucket<QuestionBankVO> bucket = redissonClient.getBucket("bankCache:bank_" + id);
+        QuestionBankVO questionBankVO = bucket.get();
+        if (questionBankVO != null) {
+            JdHotKeyStore.smartSet(key, questionBankVO);
+            return ResultUtils.success(questionBankVO);
+        }
 
         // 查询数据库
         QuestionBank questionBank = questionBankService.getById(id);
         ThrowUtils.throwIf(questionBank == null, ErrorCode.NOT_FOUND_ERROR);
         //查询题库封装类
-        QuestionBankVO questionBankVO = questionBankService.getQuestionBankVO(questionBank, request);
+        questionBankVO = questionBankService.getQuestionBankVO(questionBank, request);
         boolean needQueryQuestionList = questionBankQueryRequest.isNeedQueryQuestionList();
         if (needQueryQuestionList) {
             QuestionQueryRequest questionQueryRequest = new QuestionQueryRequest();
@@ -170,7 +180,7 @@ public class QuestionBankController {
             Page<Question> questionPage = questionService.listQuestionByPage(questionQueryRequest);
             questionBankVO.setQuestionPage(questionPage);
         }
-
+        bucket.set(questionBankVO);
         JdHotKeyStore.smartSet(key, questionBankVO);
         // 获取封装类
         return ResultUtils.success(questionBankVO);
