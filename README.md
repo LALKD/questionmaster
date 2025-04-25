@@ -1,4 +1,4 @@
-基于Spring Boot + Redis + Mybatis-plus + Elasticsearch的刷题平台。管理员可以创建题库并批量关联题目；
+基于Spring Boot + Redis + Mybatis-plus + Elasticsearch的刷题平台后端系统。管理员可以创建题库并批量关联题目；
 用户可以分词检索题目、在线刷题并查看刷题记录日历等。
 
 自主搭建 ES 代替 MySQL 模糊查询，并通过为索引绑定 ik 分词器实现了更灵活的分词搜索。
